@@ -2,9 +2,7 @@ user:
   name: 'HerokuTaccc'
   github: 'HerokuTaccc'
 
-language:
-  - "python"    # Specify Python as one language
-  - "nodejs"    # Specify Node.js as a second language
+language: "python" , "nodejs"  # Use only Python as the primary language
 
 python_version: "3.10"  # Version of Python you're using
 
