@@ -12,13 +12,11 @@ commands:
   build:
     - "pip install -r requirements.txt"     # Install Python dependencies from requirements.txt
     - "npm install"                        # Install Node.js dependencies (if you have a package.json)
-    - "sudo apt-get update && sudo apt-get install -y ffmpeg"  # Install FFmpeg via apt-get for media processing
+    #- "sudo apt-get update && sudo apt-get install -y ffmpeg"  # Install FFmpeg via apt-get for media processing
 
   package:
     - "echo 'No additional packaging commands required.'"  # Placeholder, replace if necessary
+    - "ffmpeg"
 
   start:
     - "bash start"  # Start the bot via a bash script, adjust if you use another method
-
-env:
-  - "ENVIRONMENT=production"   # Set environment variable to production
