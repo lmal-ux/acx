@@ -1,6 +1,6 @@
 user:
-  name: HerokuTaccc
-  github: HerokuTaccc
+  name: 'HerokuTaccc'
+  github: 'HerokuTaccc'
 
 language: "python" "nodejs"
 python_version: "3.10"
