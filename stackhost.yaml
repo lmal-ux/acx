@@ -1,24 +1,17 @@
 user:
-  name: "HerokuTaccc"         # Your GitHub username (name)
-  github: "HerokuTaccc"       # Your GitHub username (GitHub)
+  name: ishikki
+  github: ishikki-akabane
 
-language: 
-  - "python"                 # Specify Python as the primary language
-  - "nodejs"                 # Specify Node.js as a secondary language
-
-python_version: "3.10"       # Version of Python you're using
+language: "python"
+python_version: "3.10"
 
 commands:
   build:
-    - "pip install -r requirements.txt"     # Install Python dependencies from requirements.txt
-    - "npm install"                         # Install Node.js dependencies (if you have a package.json)
-    - "sudo apt-get update && sudo apt-get install -y ffmpeg"  # Install FFmpeg for media processing
-
+    - "pip install -r requirements.txt"
   package:
-    - "echo 'No additional packaging commands required.'"  # Placeholder for packaging commands
-
+    - "nano inxi"
   start:
-    - "bash start"  # Start the bot via a bash script, adjust if you use another method
+    - "python3 bot.py"
 
 env:
-  - "ENVIRONMENT=production"  # Set the environment to production
+  - "ENVIRONMENT=production"
