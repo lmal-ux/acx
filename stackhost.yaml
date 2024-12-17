@@ -1,6 +1,17 @@
-# Configuration for a Telegram bot
+# stackhost.yaml configuration for a bot using Python, Node.js, and FFmpeg
+
 bot:
+  token: "YOUR_BOT_TOKEN_HERE"  # Your Telegram Bot API token
   username: "your_bot_username"  # Your Telegram bot's username
+
+environment:
+  language: 
+    - "python"  # Specify Python as one of the languages
+    - "nodejs"  # Specify Node.js as another language
+
+dependencies:
+  ffmpeg: true  # Ensure FFmpeg is installed on the environment
+
 
 logging:
   level: "info"  # Logging level: "debug", "info", "warn", "error"
