@@ -1,15 +1,14 @@
 user:
-  name: 'HerokuTaccc'
-  github: 'HerokuTaccc'
+  name: ishikki
+  github: ishikki-akabane
 
-language: "python"  # Use only Python as the primary language
-
-python_version: "3.10"  # Version of Python you're using
+language: "python"
+python_version: "3.10"
 
 commands:
   build:
-    - "pip install -r requirements.txt"  # Install Python dependencies from requirements.txt
+    - "pip install -r requirements.txt"
   package:
-    - "nano"  # Install FFmpeg (if needed)
+    - "nano inxi"
   start:
-    - "bash start"  # Start the bot via bash script
+    - "python3 -m AnonXMusic"
