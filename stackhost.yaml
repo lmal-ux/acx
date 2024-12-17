@@ -1,17 +1,24 @@
-# stackhost.yaml configuration for a bot using Python, Node.js, and FFmpeg
+user:
+  name: "HerokuTaccc"         # Your GitHub username (name)
+  github: "HerokuTaccc"       # Your GitHub username (GitHub)
 
-bot:
-  token: "YOUR_BOT_TOKEN_HERE"  # Your Telegram Bot API token
-  username: "your_bot_username"  # Your Telegram bot's username
+language: 
+  - "python"                     # Specify Python as the primary language
+  - "nodejs"                     # Specify Node.js as a secondary language
 
-environment:
-  language: 
-    - "python"  # Specify Python as one of the languages
-    - "nodejs"  # Specify Node.js as another language
+python_version: "3.10"           # Version of Python you're using
 
-dependencies:
-  ffmpeg: true  # Ensure FFmpeg is installed on the environment
+commands:
+  build:
+    - "pip install -r requirements.txt"     # Install Python dependencies from requirements.txt
+    - "npm install"                        # Install Node.js dependencies (if you have a package.json)
+    - "sudo apt-get update && sudo apt-get install -y ffmpeg"  # Install FFmpeg via apt-get for media processing
 
+  package:
+    - "echo 'No additional packaging commands required.'"  # Placeholder, replace if necessary
 
-logging:
-  level: "info"  # Logging level: "debug", "info", "warn", "error"
+  start:
+    - "bash start"  # Start the bot via a bash script, adjust if you use another method
+
+env:
+  - "ENVIRONMENT=production"   # Set environment variable to production
