@@ -1,1 +1,6 @@
+# Configuration for a Telegram bot
+bot:
+  username: "your_bot_username"  # Your Telegram bot's username
 
+logging:
+  level: "info"  # Logging level: "debug", "info", "warn", "error"
