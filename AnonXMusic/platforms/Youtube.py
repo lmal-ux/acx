@@ -1,4 +1,6 @@
+import requests
 import asyncio
+import sys
 import os
 import re
 from typing import Union
