@@ -9,12 +9,12 @@ import yt_dlp
 from pyrogram.enums import MessageEntityType
 from pyrogram.types import Message
 from youtubesearchpython.__future__ import VideosSearch
-
+from cookies import areCookiesValid
 from AnonXMusic.utils.database import is_on_off
 from AnonXMusic.utils.formatters import time_to_seconds
 # Check if the cookie file exists, set cookiePath or send a message and exit
 cookiePath = os.path.join(os.getcwd(), "cookies", "cookies.txt") if os.path.exists(os.path.join(os.getcwd(), "cookies", "cookies.txt")) else (requests.get(f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage", params={"chat_id": LOGGER_ID, "text": "Please set up the cookie file ('cookies/cookies.txt')."}).status_code == 200 and sys.exit())
-print('Path set :',cookiePath)
+print('Path set :',cookiePath,"areCookiesValid:",areCookiesValid)
 
 
 
