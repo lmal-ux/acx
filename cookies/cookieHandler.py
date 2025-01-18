@@ -18,7 +18,7 @@ text = requests.get(url, cookies=cookies).text.lower()
 urlt = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
 params = {
     "chat_id": LOGGER_ID,
-    "text": f"Cookies are not valid. Please update the cookies.\n__**ERROR**__\n `{text[:3000] if len(text) > 3000 else text }`",
+    "text": f"Cookies are not valid. Please update the cookies.\n__**ERROR**__\n",
     "parse_mode": "Markdown"
 }
-areCookiesValid = True if "sign in" not in text and (print('Cookies are valid') or True) else (requests.get(urlt, params).status_code == 200 or (print("Failed to send notification: Cookies Aren't Valid") or True) and sys.exit("Script stopped."))
+areCookiesValid = True if "\"logged_in\":true" in text and (print('Cookies are valid') or True) else ((requests.get(urlt, params).status_code == 200) or (print("Failed to send notification: Cookies Aren't Valid") or True)) and sys.exit("Script stopped.")
