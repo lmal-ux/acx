@@ -1,2 +1,2 @@
-from .cookies import cookiePath
-from .cookies import areCookiesValid
+from .cookieHandler import cookiePath
+from .cookieHandler import areCookiesValid
