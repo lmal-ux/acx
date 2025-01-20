@@ -13,7 +13,7 @@ from youtubesearchpython.__future__ import VideosSearch
 from AnonXMusic.utils.database import is_on_off
 from AnonXMusic.utils.formatters import time_to_seconds
 # Check if the cookie file exists, set cookiePath or send a message and exit
-print('Path set :','\"',cookiePath,'\"',"areCookiesValid:",areCookiesValid)
+print('Path set : , cookiePath , "\nareCookiesValid:" , areCookiesValid)
 
 
 
