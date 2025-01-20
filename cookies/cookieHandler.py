@@ -1,9 +1,8 @@
 import sys
 import requests
-from AnonXMusic.platforms import cookiePath
 from config import LOGGER_ID
 from config import BOT_TOKEN
-
+cookiePath = os.path.join(os.getcwd(), "cookies", "cookies.txt") if os.path.exists(os.path.join(os.getcwd(), "cookies", "cookies.txt")) else (requests.get(f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage", params={"chat_id": LOGGER_ID, "text": "Please set up the cookie file ('cookies/cookies.txt')."}).status_code == 200 or True) and sys.exit("Please set up the cookie file ('cookies/cookies.txt').")
 cookies = {
     name: value
     for line in open(cookiePath)
@@ -21,4 +20,4 @@ params = {
     "text": f"Cookies are not valid. Please update the cookies.\n__**ERROR**__\n",
     "parse_mode": "Markdown"
 }
-areCookiesValid = True if "\"logged_in\":true" in text and (print('Cookies are valid') or True) else ((requests.get(urlt, params).status_code == 200) or (print("Failed to send notification: Cookies Aren't Valid") or True)) and sys.exit("Script stopped.")
+areCookiesValid = True if "\"logged_in\":true" in text else ((requests.get(urlt, params).status_code == 200) or (print("Failed to send notification: Cookies Aren't Valid") or True)) and sys.exit("Script stopped.")
