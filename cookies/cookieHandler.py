@@ -1,3 +1,4 @@
+import os
 import sys
 import requests
 from config import LOGGER_ID
