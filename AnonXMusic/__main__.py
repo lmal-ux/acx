@@ -1,7 +1,5 @@
 import asyncio
 import importlib
-import psutil
-import os
 
 from pyrogram import idle
 from pytgcalls.exceptions import NoActiveGroupCall
@@ -58,26 +56,7 @@ async def init():
     await app.stop()
     await userbot.stop()
     LOGGER("AnonXMusic").info("Stopping AnonX Music Bot...")
-    loop.stop()
-async def check_memory_usage():
-    
-    while True:
-        process = psutil.Process(os.getpid())
-        memory_usage = process.memory_info().rss / (1024 * 1024)  # Convert to MB
-        print("RAM used:-", memory_usage)
-        if memory_usage > config.MAXRAM:
-            os.system(f"kill -9 {os.getpid()} && bash start")
-            print(os.getpid())
-        await asyncio.sleep(15)  # Sleep for 15 seconds before checking again
 
-async def main():
-    asyncio.create_task(check_memory_usage())
-    while True:
-        await asyncio.sleep(1)
-
-async def run_both():
-    await asyncio.gather(main(), init())
 
 if __name__ == "__main__":
-    loop = asyncio.get_event_loop()
-    loop.run_until_complete(run_both())
+    asyncio.get_event_loop().run_until_complete(init())
