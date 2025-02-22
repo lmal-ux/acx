@@ -7,7 +7,6 @@ from http.cookiejar import MozillaCookieJar as surefir
 cookiePath = os.path.join(os.getcwd(), "cookies", "cookies.txt")
 
 def loadCookie(cookiePath=cookiePath):
-    print(cookiePath)
     if not os.path.exists(cookiePath):
       raise FileNotFoundError("The specified file was not found.")
     cookies = surefir(cookiePath)
@@ -15,8 +14,7 @@ def loadCookie(cookiePath=cookiePath):
     return cookies
   
 def checkCookie(cookiePath=cookiePath):
-    global areCookiesValid
-    print(cookiePath)
+    
     cookies=loadCookie(cookiePath)
 
     url = "https://www.youtube.com/feed/subscriptions"
@@ -24,11 +22,9 @@ def checkCookie(cookiePath=cookiePath):
     while tries<=3:
       text = requests.get(url, cookies=cookies).text.lower()
       if "\"logged_in\":true" in text:
-        areCookiesValid = True
         return True
       tries+=1
       print("areCookiesValid:-", areCookiesValid ,f"-- tries:- {tries}")
-    areCookiesValid=False
     return False
 
 areCookiesValid = checkCookie()
