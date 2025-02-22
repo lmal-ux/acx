@@ -4,26 +4,31 @@ import requests
 from config import LOGGER_ID 
 from config import BOT_TOKEN
 from http.cookiejar import MozillaCookieJar as surefir
-areCookiesValid = False
-cookiePath = os.path.join(os.getcwd(), "cookies", "cookies.txt") if os.path.exists(os.path.join(os.getcwd(), "cookies", "cookies.txt")) else (requests.get(f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage", params={"chat_id": LOGGER_ID, "text": "Please set up the cookie file ('cookies/cookies.txt')."}).status_code == 200 or True) and sys.exit("Please set up the cookie file ('cookies/cookies.txt').")
+cookiePath = os.path.join(os.getcwd(), "cookies", "cookies.txt")
 
 def loadCookie(cookiePath=cookiePath):
+    print(cookiePath)
+    if not os.path.exists(cookiePath):
+      raise FileNotFoundError("The specified file was not found.")
     cookies = surefir(cookiePath)
     cookies.load(ignore_discard=True, ignore_expires=True)
     return cookies
-
-
-cookies=loadCookie()
-
-
-def checkCookie(cookies=cookies):
+  
+def checkCookie(cookiePath=cookiePath):
     global areCookiesValid
+    print(cookiePath)
+    cookies=loadCookie(cookiePath)
 
     url = "https://www.youtube.com/feed/subscriptions"
-    
-    response = requests.get(url, cookies=cookies)
-    
-    text = response.text.lower()
-
-    if "\"logged_in\":true" in text:
+    tries=0
+    while tries<=3:
+      text = requests.get(url, cookies=cookies).text.lower()
+      if "\"logged_in\":true" in text:
         areCookiesValid = True
+        return True
+      tries+=1
+      print("areCookiesValid:-", areCookiesValid ,f"-- tries:- {tries}")
+    areCookiesValid=False
+    return False
+
+areCookiesValid = checkCookie()
