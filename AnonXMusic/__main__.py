@@ -61,7 +61,6 @@ async def init():
 
 
 if __name__ == "__main__":
-  try:
+  with warnings.catch_warnings():
+    warnings.filterwarnings("ignore", message="There is no current event loop", category=DeprecationWarning)
     asyncio.get_event_loop().run_until_complete(init())
-  except:
-      pass 
