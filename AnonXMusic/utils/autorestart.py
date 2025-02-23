@@ -23,13 +23,13 @@ async def check_system_resources():
     cpu_usage = psutil.cpu_percent(interval=None)  
 
     message = (
-        f"{timestamp} Total RAM: {total_ram / (1024**3):.2f} GB\n"
-        f"{timestamp} RAM Usage: {ram_usage}%\n"
-        f"{timestamp} CPU Usage: {cpu_usage}%"
+        f"[{timestamp}] Total RAM: {total_ram / (1024**3):.2f} GB\n"
+        f"[{timestamp}] RAM Usage: {ram_usage}%\n"
+        f"[{timestamp}] CPU Usage: {cpu_usage}%"
     )
 
     with open(log_file, "a") as log:
-        log.write(message + "\n")
+        log.write(message + "\n\n\n")
 
     if ram_usage >= 93 and cpu_usage >= 93:
         warning = f"{timestamp} High resource usage detected. Restarting process..."
