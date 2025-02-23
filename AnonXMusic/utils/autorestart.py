@@ -42,7 +42,10 @@ async def check_system_resources():
 
 async def monitor():
     while True:
-        should_continue = await check_system_resources()
+        try
+         should_continue = await check_system_resources()
+        except :
+            should_continue=False
         if not should_continue:
             break  
         await asyncio.sleep(5)
