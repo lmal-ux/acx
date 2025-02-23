@@ -1,3 +1,4 @@
+from .autorestart import monitor
 from .channelplay import *
 from .database import *
 from .decorators import *
