@@ -1,15 +1,17 @@
 import os
 import psutil
 import asyncio
-from datetime import datetime
+from datetime import datetime, timedelta
+try: from zoneinfo import ZoneInfo; ZI = True  
+except: ZI = False  
 
 async def check_system_resources():
     log_dir = os.path.abspath(os.path.join(os.getcwd(), ".."))
     log_file = os.path.join(log_dir, "ram.log")
-
+    
     os.makedirs(log_dir, exist_ok=True)
 
-    timestamp = datetime.now().strftime("%d-%m-%y:%H:%M:%S")
+    timestamp = datetime.now(ZoneInfo("Asia/Kolkata")).strftime("%d-%m-%y:%H:%M:%S") if ZI else (datetime.utcnow() + timedelta(hours=5, minutes=30)).strftime("%d-%m-%y:%H:%M:%S")
     total_ram = psutil.virtual_memory().total  
 
     if total_ram > 2 * 1024**3:  
