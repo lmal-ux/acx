@@ -21,6 +21,7 @@ playtypedb = mongodb.playtypedb
 skipdb = mongodb.skipmode
 sudoersdb = mongodb.sudoers
 usersdb = mongodb.tgusersdb
+rankings = mongodb.rankings
 
 # Shifting to memory [mongo sucks often]
 active = []
@@ -37,6 +38,61 @@ pause = {}
 playmode = {}
 playtype = {}
 skipmode = {}
+rankingss = {}
+
+
+async def update_group_user_data(m):
+    
+    group_id = m.chat.id 
+    group_name = m.chat.title  
+    user_id = m.from_user.id  
+    user_name = m.from_user.first_name  
+
+    try:
+        result = await rankings.update_one(
+            {"group_id": group_id},
+            {
+                "$set": {
+                    "group_name": group_name
+                },
+                "$inc": {
+                    "total_count": 1,
+                    "users.$[user].count": 1
+                },
+                "$addToSet": {
+                    "users": {
+                        "user_id": user_id,
+                        "user_name": user_name,
+                        "count": 1
+                    }
+                }
+            },
+            array_filters=[{"user.user_id": user_id}],
+            upsert=True
+        )
+
+        pass_status = True
+    except Exception as e:
+        pass_status = False
+        print(f"An error occurred while updating the group or user data: {e}")
+
+    if not pass_status:
+        return
+
+    if group_id not in rankingss:
+        rankingss[group_id] = {
+            "group_name": group_name,
+            "total_count": 1,
+            "users": {user_id: {"user_name": user_name, "count": 1}}
+        }
+    else:
+        group = rankingss[group_id]
+        group["total_count"] += 1
+        
+        if user_id not in group["users"]:
+            group["users"][user_id] = {"user_name": user_name, "count": 1}
+        else:
+            group["users"][user_id]["count"] += 1    
 
 
 async def get_assistant_number(chat_id: int) -> str:
