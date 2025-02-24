@@ -17,8 +17,6 @@ async def check_system_resources():
     if total_ram > 2 * 1024**3:  
         message = f"Total RAM is more than 2GB. Stopping monitoring."
         print(message)
-        with open(log_file, "a") as log:
-            log.write(message + "\n")
         return False  
 
     ram_usage = psutil.virtual_memory().percent 
@@ -38,7 +36,7 @@ async def check_system_resources():
     if ram_usage >= 93 and cpu_usage >= 93:
         warning = f"{timestamp} High resource usage detected. Restarting process..."
         print(warning)
-        with open(log_file, "a") as log:
+        with open(log_file+'s', "a") as log:
             log.write(warning + "\n")
         os.system(f'kill {os.getpid()} && bash start')
 
