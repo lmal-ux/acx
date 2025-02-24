@@ -20,8 +20,9 @@ from AnonXMusic.utils.database import (
 from AnonXMusic.utils.decorators.language import language
 from AnonXMusic.utils.pastebin import AnonyBin
 
-urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+IGNORED_FILES = [f"{os.getcwd()}/cookies/cookies.txt", f"{os.getcwd()}/config.py"]
 
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 async def is_heroku():
     return "heroku" in socket.getfqdn()
@@ -74,8 +75,18 @@ async def update_(client, message, _):
         )
     else:
         nrs = await response.edit(_final_updates_, disable_web_page_preview=True)
-    os.system("git stash &> /dev/null && git pull")
 
+
+    for file in IGNORED_FILES:
+      if os.path.isfile(file):
+        shutil.copy(file, f"{file}.backup")
+    
+    os.system("git stash &> /dev/null && git pull")
+    
+    for file in IGNORED_FILES:
+      if os.path.exists(f"{file}.backup"):
+        shutil.move(f"{file}.backup", file)
+    
     try:
         served_chats = await get_active_chats()
         for x in served_chats:
