@@ -1,5 +1,8 @@
 import asyncio
 import shlex
+import shutil
+import os
+
 from typing import Tuple
 
 from git import Repo
@@ -8,6 +11,9 @@ from git.exc import GitCommandError, InvalidGitRepositoryError
 import config
 
 from ..logging import LOGGER
+
+cwd = os.getcwd()
+IGNORED_FILES = [f"{cwd}/cookies/cookies.txt", f"{cwd}/config.py"]
 
 
 def install_req(cmd: str) -> Tuple[str, str, int, int]:
@@ -63,9 +69,23 @@ def git():
             pass
         nrs = repo.remote("origin")
         nrs.fetch(config.UPSTREAM_BRANCH)
+
         try:
+            
+            for file in IGNORED_FILES:
+                if os.path.isfile(file):
+                    shutil.copy(file, f"{file}.backup")
+
             nrs.pull(config.UPSTREAM_BRANCH)
+
         except GitCommandError:
             repo.git.reset("--hard", "FETCH_HEAD")
+
+        finally:
+            
+            for file in IGNORED_FILES:
+                if os.path.exists(f"{file}.backup"):
+                    shutil.move(f"{file}.backup", file)
+
         install_req("pip3 install --no-cache-dir -r requirements.txt")
         LOGGER(__name__).info(f"Fetching updates from upstream repository...")
