@@ -244,7 +244,7 @@ async def main():
     w=await app.pin_chat_message(v.chat.id, v.message_id, disable_notification=False)
     global mid
     if w:
-        mid=v.message_id
+        mid=v.id
     print("[CSM] ⚠️ Cookies aren't valid. Waiting for user to send `/setc` or Press `CTRL + C` to exit [`CSM`].")
     await idle()
 
