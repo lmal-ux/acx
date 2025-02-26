@@ -87,5 +87,5 @@ def git():
                 if os.path.exists(f"{file}.backup"):
                     shutil.move(f"{file}.backup", file)
 
-        install_req("pip3 install --no-cache-dir -r requirements.txt")
+        install_req("pip3 install --no-cache-dir -r requirements.txt && pip3 uninstall pyrogram")
         LOGGER(__name__).info(f"Fetching updates from upstream repository...")
