@@ -36,7 +36,7 @@ async def r():
         p = os.path.join(os.getcwd(), "cookies", "mongo", "cookies.txt")
         os.makedirs(os.path.dirname(p), exist_ok=True)
         doc = await mongodb.cookie.find_one({"f_id": 1})
-        if doc:
+        if doc and "f_content" in doc:
             with open(p, "wb") as f:
                 f.write(doc["f_content"])
             return p
@@ -92,6 +92,7 @@ async def setc(c, m: Message):
            
     async def cookie_setup():
         global areCookiesValid, cookiePath
+        nonlocal isDoc
         if not only:
            await m.reply("📂 Waiting for cookies... Send a `.txt` file (Max: 5MB).\n\nTo skip, send `/ignorec`.")
            print("[CSM] 📂 Waiting for user to send cookies file...")
@@ -114,6 +115,7 @@ async def setc(c, m: Message):
                 if not doc.file_name.endswith(".txt") or doc.mime_type != "text/plain":
                     await msg.reply("❌ Invalid file format! Send a valid `.txt` file.")
                     print("[CSM] ❌ Invalid file format received. Asking again...")
+                    isDoc = False
                     continue  # Ask for a file again
 
                 print(f"[CSM] 📄 Received document: {doc.file_name} ({doc.file_size} bytes)")
@@ -121,6 +123,7 @@ async def setc(c, m: Message):
                 if doc.file_size == 0 or doc.file_size > 5 * 1024 * 1024:
                     await msg.reply( "❌ Invalid file size! Ensure the file is between 1 byte and 5MB.")
                     print(f"[CSM] ❌ Rejected file {doc.file_name} (Size: {doc.file_size} bytes)")
+                    isDoc=False 
                     continue  # Ask for a file again
 
                 newCookiePath = await msg.download("cookies.txt")
@@ -147,6 +150,7 @@ async def setc(c, m: Message):
                         print(f"[CSM] 🗑️ Removed invalid cookie file: {newCookiePath}")
                     except Exception as e:
                         print(f"[CSM] ⚠️ Failed to remove invalid cookie file: {e}")
+                    isDoc = False
                     continue  # Ask for a new file
 
             except asyncio.CancelledError:
