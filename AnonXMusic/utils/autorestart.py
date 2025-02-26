@@ -20,13 +20,11 @@ async def check_system_resources():
         return False  
 
     ram_usage = psutil.virtual_memory().percent 
-    swap_usage = psutil.swap_memory().percent 
     cpu_usage = psutil.cpu_percent(interval=None)  
     
     message = (
         f"[{timestamp}] Total RAM: {total_ram / (1024**3):.2f} GB\n"
         f"[{timestamp}] RAM Usage: {ram_usage}%\n"
-        f"[{timestamp}] Swap Usage: {swap_usage}%\n"
         f"[{timestamp}] CPU Usage: {cpu_usage}%"
     )
 
