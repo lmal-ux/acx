@@ -14,6 +14,7 @@ from AnonXMusic.core.mongo import mongodb
 cookiePath = os.path.join(os.getcwd(), "cookies", "cookies.txt")
 areCookiesValid = False
 mid = None
+wid = None
 setc_task = None  # Track ongoing setc task
 cookie=mongodb.cookie
 
@@ -51,13 +52,19 @@ app = Client("myapp", API_ID, API_HASH, bot_token=BOT_TOKEN)
 @app.on_message(filters.chat(LOGGER_ID) & filters.command(["set_cookie", "setc"]))
 async def setc(c, m: Message):
     """Handles cookie setup. Cancels previous instances before starting a new one."""
-    global areCookiesValid, cookiePath, setc_task
+    global areCookiesValid, cookiePath, setc_task, mid, wid
     if mid is not None:
         try:
            await app.unpin_chat_message(LOGGER_ID, mid)
            mid=None
         except:
             pass
+        if wid is not None:
+            try:
+                await app.delete_messages(LOGGER_ID, wid)
+                wid=None
+            except:
+                pass
             
     if areCookiesValid:
         await m.reply("✅ Cookies are already valid! Exiting Cookie Setup Mode.")
@@ -69,7 +76,7 @@ async def setc(c, m: Message):
 
     if setc_task and not setc_task.done():
         setc_task.cancel()
-        await m.reply("⚠️ Cancelling previous /setc process... Starting a new one.")
+        await m.reply("⚠️ Cancelling previous `/setc` process... Starting a new one.")
         print("[CSM] ⚠️ Cancelling previous `/setc` process... Starting a new one.")
         await asyncio.sleep(0.5)  # Small delay to ensure cancellation
     isDoc = False
@@ -90,7 +97,7 @@ async def setc(c, m: Message):
            print("[CSM] 📂 Waiting for user to send cookies file...")
         
         if only and not isDoc:
-            await m.reply("Please reply with a valid `.txt` file or send the file.\n📂 Waiting for cookies... Send a `.txt` file (Max: 5MB).\n\nTo skip, send `/ignorec`.")
+            await m.reply("📑 Please reply with a valid `.txt` file or send the file.\n\n📂 Waiting for cookies... Send a `.txt` file (Max: 5MB).\n\nTo skip, send `/ignorec`.")
             print("[CSM] 📂 Waiting for user to send cookies file...")
         
         while True:  # Loop until valid cookies are received or the process is cancelled
@@ -124,6 +131,7 @@ async def setc(c, m: Message):
                     cookiePath = newCookiePath  
                     areCookiesValid = True
                     await s(cookiePath)
+                    print('[CSM] 💭 🔼 UPLOADED New cookies to cloud.')
                     print("[CSM] ✅ Cookies are valid! Exiting setup mode.")
                     await app.send_message(LOGGER_ID, "✅ Cookies are valid and set successfully! Exiting Cookie Setup Mode.")
                     if app.loop.is_running():
@@ -146,21 +154,30 @@ async def setc(c, m: Message):
                 break  # Exit the loop if process is cancelled
 
             except Exception as e:
-                print(f"[CSM] ⚠️ Error in cookie setup: {e}")
-                await app.send_message(LOGGER_ID, f"⚠️ Error: {e}. Try sending a valid file again.")
-                continue  # Keep waiting for a valid file
+                print(f"[CSM] ⚠️ Error in cookie setup: {e}. Send /setc to Restart. Please diagnose it if Persist.")
+                await app.send_message(LOGGER_ID, f"⚠️ Error: {e}. Send /setc to Restart. Please diagnose it if Persist.")
+                break
 
     setc_task = asyncio.create_task(cookie_setup())
 
 @app.on_message(filters.chat(LOGGER_ID) & filters.command("ignorec"))
 async def ignorec(c, m: Message):
     """Allows user to manually exit Cookie Setup Mode."""
+    global mid, wid
     if mid is not None:
         try:
            await app.unpin_chat_message(LOGGER_ID, mid)
            mid=None
         except:
             pass
+            
+        if wid is not None:
+            try:
+                await app.delete_messages(LOGGER_ID, wid)
+                wid=None
+            except:
+                pass
+
     print("[CSM] ❌ User manually exited Cookie Setup Mode.")
     await m.reply("❌ Exiting Cookie Setup Mode.")
     if setc_task and not setc_task.done():
@@ -190,7 +207,7 @@ def checkCookie(cookiePath=cookiePath):
 
     url = "https://www.youtube.com/feed/subscriptions"
     tries = 0
-    print('[CSM] 🧐 Checking cookies')
+    print('[CSM] ⚖️ Checking cookies with YouTube API to verify login status...')
     while tries <= 3:
 
         try:
@@ -239,13 +256,21 @@ async def main():
             app.loop.stop()
             raise KeyboardInterrupt
         return
-
-    v=await app.send_message(LOGGER_ID, "⚠️ Cookies aren't valid! Send or Reply /setc to set cookies.")
-    w=await app.pin_chat_message(v.chat.id, v.message_id, disable_notification=False)
-    global mid
+    try:
+        v=await app.send_message(LOGGER_ID, "⚠️ Cookies aren't valid! Send or Reply /setc to set cookies.")
+        print("[CSM] ⚠️ Cookies aren't valid. Waiting for user to send `/setc` or Press `CTRL + C` to exit [`CSM`].")
+    except Exception as e:
+        v=False
+        print(f'[CSM] 📝 Error Failed send Message Maybe bot do not have access to log group.\n`{e}`')
+    try:
+       if v:
+         w=await app.pin_chat_message(v.chat.id, v.id, disable_notification=False)
+    except:
+        w=False
+    global mid, wid
     if w:
+        wid=w.id
         mid=v.id
-    print("[CSM] ⚠️ Cookies aren't valid. Waiting for user to send `/setc` or Press `CTRL + C` to exit [`CSM`].")
     await idle()
 
 try:
