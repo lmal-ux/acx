@@ -42,7 +42,7 @@ async def r():
             return p
         return False
     except Exception as e:
-        print(f'[CSM]💭 🗳️ Error while Checking cloud cookies. Error {e}.')
+        print(f'[CSM] 💭 Error while Checking cloud cookies 🗳️. Error {e}.')
         return None
 
 
@@ -131,7 +131,7 @@ async def setc(c, m: Message):
                     cookiePath = newCookiePath  
                     areCookiesValid = True
                     await s(cookiePath)
-                    print('[CSM] 💭 🔼 UPLOADED New cookies to cloud.')
+                    print('[CSM] 💭 UPLOADED New cookies to cloud 🔼.')
                     print("[CSM] ✅ Cookies are valid! Exiting setup mode.")
                     await app.send_message(LOGGER_ID, "✅ Cookies are valid and set successfully! Exiting Cookie Setup Mode.")
                     if app.loop.is_running():
@@ -247,7 +247,7 @@ async def main():
             except Exception as e :
               pass
      if cp is False: 
-        print ('[CSM] 💭 🗃️ No cloud cookies available.')
+        print ('[CSM] 💭 No cloud cookies available ❌.')
 
 
 
