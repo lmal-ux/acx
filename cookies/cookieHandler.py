@@ -42,7 +42,7 @@ async def r():
             return p
         return False
     except Exception as e:
-        print(f'[CSM] 💭 Error while Checking cloud cookies 🗳️. Error {e}.')
+        print(f'[CSM] 💭 Error while Checking cloud cookies. 🗳️\nError: {e}.')
         return None
 
 
@@ -53,15 +53,21 @@ app = Client("myapp", API_ID, API_HASH, bot_token=BOT_TOKEN)
 async def setc(c, m: Message):
     """Handles cookie setup. Cancels previous instances before starting a new one."""
     global areCookiesValid, cookiePath, setc_task, mid, wid
+    mmid=None
     if mid is not None:
         try:
            await app.unpin_chat_message(LOGGER_ID, mid)
+           mmid= mid
            mid=None
         except:
+            mmid= mid
             pass
-        if wid is not None:
+            
+    if wid is not None:
             try:
                 await app.delete_messages(LOGGER_ID, wid)
+                if mmid is not None:
+                    await app.delete_messages(LOGGER_ID, mmid)
                 wid=None
             except:
                 pass
@@ -134,7 +140,7 @@ async def setc(c, m: Message):
                     cookiePath = newCookiePath  
                     areCookiesValid = True
                     await s(cookiePath)
-                    print('[CSM] 💭 UPLOADED New cookies to cloud 🔼.')
+                    print('[CSM] 💭 UPLOADED New cookies to cloud. 🔼')
                     print("[CSM] ✅ Cookies are valid! Exiting setup mode.")
                     await app.send_message(LOGGER_ID, "✅ Cookies are valid and set successfully! Exiting Cookie Setup Mode.")
                     if app.loop.is_running():
@@ -168,16 +174,21 @@ async def setc(c, m: Message):
 async def ignorec(c, m: Message):
     """Allows user to manually exit Cookie Setup Mode."""
     global mid, wid
+    mmid=None
     if mid is not None:
         try:
            await app.unpin_chat_message(LOGGER_ID, mid)
+           mmid= mid
            mid=None
         except:
+            mmid= mid
             pass
             
-        if wid is not None:
+    if wid is not None:
             try:
                 await app.delete_messages(LOGGER_ID, wid)
+                if mmid is not None:
+                    await app.delete_messages(LOGGER_ID, mmid)
                 wid=None
             except:
                 pass
@@ -251,7 +262,7 @@ async def main():
             except Exception as e :
               pass
      if cp is False: 
-        print ('[CSM] 💭 No cloud cookies available ❌.')
+        print ('[CSM] 💭 No Cloud Cookies Available. ❌')
 
 
 
@@ -261,7 +272,7 @@ async def main():
             raise KeyboardInterrupt
         return
     try:
-        v=await app.send_message(LOGGER_ID, "⚠️ Cookies aren't valid! Send or Reply /setc to set cookies.")
+        v=await app.send_message(LOGGER_ID, "⚠️ Cookies aren't valid! Send or Reply /setc to set cookies.\nor to skip `/ignorec`")
         print("[CSM] ⚠️ Cookies aren't valid. Waiting for user to send `/setc` or Press `CTRL + C` to exit [`CSM`].")
     except Exception as e:
         v=False
