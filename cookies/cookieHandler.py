@@ -97,7 +97,7 @@ async def setc(c, m: Message):
            print("[CSM] 📂 Waiting for user to send cookies file...")
         
         if only and not isDoc:
-            await m.reply("📑 Please reply with a valid `.txt` file or send the file.\n\n📂 Waiting for cookies... Send a `.txt` file (Max: 5MB).\n\nTo skip, send `/ignorec`.")
+            await m.reply("Please reply with a valid `.txt` file or send the file.\n\n📂 Waiting for cookies... Send a `.txt` file (Max: 5MB).\n\nTo skip, send `/ignorec`.")
             print("[CSM] 📂 Waiting for user to send cookies file...")
         
         while True:  # Loop until valid cookies are received or the process is cancelled
