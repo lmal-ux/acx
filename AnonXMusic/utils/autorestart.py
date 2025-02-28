@@ -31,7 +31,7 @@ async def check_system_resources():
     with open(log_file, "a") as log:
         log.write(message + "\n\n\n")
 
-    if (ram_usage >= 93 and cpu_usage >= 93) or (ram_usage> = 98 or cpu_usage >= 93 ):
+    if (ram_usage >= 93 and cpu_usage >= 93) or (ram_usage >= 98 or cpu_usage >= 93 ):
         warning = f"[{timestamp}] High resource usage detected. Restarting process..."
         print(warning)
         with open(log_file+'s', "a") as log:
