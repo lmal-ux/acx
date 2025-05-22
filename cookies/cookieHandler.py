@@ -47,7 +47,7 @@ async def r():
 
 
 
-app = Client("myapp", API_ID, API_HASH, bot_token=BOT_TOKEN)
+app = Client("myapp", API_ID, API_HASH, bot_token=BOT_TOKEN,in_memory=True)
 
 @app.on_message(filters.chat(LOGGER_ID) & filters.command(["set_cookie", "setc"]))
 async def setc(c, m: Message):
