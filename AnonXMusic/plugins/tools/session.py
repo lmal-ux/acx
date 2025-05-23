@@ -1,7 +1,7 @@
 import re
-from pyrogram import filters, Client
+from pyrogram import Client, filters
 from pyrogram.types import Message
-from pyrogram.errors import SessionPasswordNeeded
+from pyrogram.errors import SessionPasswordNeeded, ListenerTimeout
 
 from AnonXMusic import app
 from config import BANNED_USERS
@@ -14,52 +14,69 @@ async def generate_string_session(client: Client, message: Message):
     user_id = message.chat.id
 
     try:
-        # Phone number
+        # Ask phone number
+        await message.reply_text(
+            "Please enter your **phone number** with country code (e.g., `+1234567890`) or type `exit` to cancel:",
+            parse_mode="markdown"
+        )
+
         for _ in range(3):
-            response = await client.ask(
-                user_id,
-                "Please enter your **phone number** with country code (e.g., `+1234567890`) or type `exit` to cancel:",
-                timeout=300
-            )
-            if not response.text:
-                await message.reply_text("Invalid input. Please enter a valid phone number.")
+            phone_msg = await client.listen(chat_id=user_id, user_id=user_id, timeout=300)
+
+            if not phone_msg.text:
+                await client.send_message(user_id, "Invalid input. Please send text.", parse_mode="markdown")
                 continue
-            if response.text.lower() == "exit":
-                return await message.reply_text("Session generation cancelled.")
-            phone_number = response.text.strip()
+
+            phone_number = phone_msg.text.strip()
+            if phone_number.lower() == "exit":
+                return await client.send_message(user_id, "Session generation cancelled.", parse_mode="markdown")
+
             if PHONE_REGEX.match(phone_number):
                 break
-            await message.reply_text("Invalid phone number format. Try again.")
+
+            await client.send_message(user_id, "Invalid phone number format. Try again:", parse_mode="markdown")
         else:
-            return await message.reply_text("Too many invalid attempts. Cancelled.")
+            return await client.send_message(user_id, "Too many invalid attempts. Cancelled.", parse_mode="markdown")
 
-        await message.reply_text("Sending code request...")
+        await client.send_message(user_id, "Sending code request...", parse_mode="markdown")
 
-        temp_app = Client(name="gen_session", api_id=app.api_id, api_hash=app.api_hash, in_memory=True)
+        temp_app = Client(
+            name="gen_session", api_id=app.api_id, api_hash=app.api_hash, in_memory=True
+        )
         await temp_app.connect()
 
         try:
             code_info = await temp_app.send_code(phone_number)
         except Exception as e:
             await temp_app.disconnect()
-            return await message.reply_text(f"Failed to send code:\n`{e}`")
+            return await client.send_message(user_id, f"Failed to send code:\n`{e}`", parse_mode="markdown")
 
-        # OTP
+        # Ask for OTP
+        await client.send_message(
+            user_id,
+            "Enter the **OTP** you received (you can include spaces), or type `exit` to cancel:",
+            parse_mode="markdown"
+        )
+
         for _ in range(3):
-            response = await client.ask(user_id, "Enter the **OTP** you received (you can include spaces), or type `exit` to cancel:", timeout=300)
-            if not response.text:
-                await message.reply_text("Invalid input. Please enter the OTP.")
+            otp_msg = await client.listen(chat_id=user_id, user_id=user_id, timeout=300)
+
+            if not otp_msg.text:
+                await client.send_message(user_id, "Invalid input. Please send text.", parse_mode="markdown")
                 continue
-            if response.text.lower() == "exit":
+
+            otp = otp_msg.text.replace(" ", "").strip()
+            if otp.lower() == "exit":
                 await temp_app.disconnect()
-                return await message.reply_text("Session generation cancelled.")
-            otp = response.text.replace(" ", "")
+                return await client.send_message(user_id, "Session generation cancelled.", parse_mode="markdown")
+
             if otp.isdigit():
                 break
-            await message.reply_text("OTP must be numeric. Try again.")
+
+            await client.send_message(user_id, "OTP must be numeric. Try again:", parse_mode="markdown")
         else:
             await temp_app.disconnect()
-            return await message.reply_text("Too many invalid OTP attempts. Cancelled.")
+            return await client.send_message(user_id, "Too many invalid OTP attempts. Cancelled.", parse_mode="markdown")
 
         # Login
         try:
@@ -67,36 +84,51 @@ async def generate_string_session(client: Client, message: Message):
         except SessionPasswordNeeded:
             try:
                 hint = await temp_app.get_password_hint()
-                if not hint:
-                    hint = "No hint is set for this account."
+                hint = hint or "No hint is set for this account."
             except Exception:
                 hint = "Unable to retrieve password hint."
 
+            await client.send_message(
+                user_id,
+                f"2FA is enabled.\nPassword hint: `{hint}`\nEnter your **Telegram password** or type `exit` to cancel:",
+                parse_mode="markdown"
+            )
+
             for _ in range(3):
-                response = await client.ask(user_id, f"2FA is enabled.\nPassword hint: `{hint}`\nEnter your **Telegram password** or type `exit` to cancel:", timeout=300)
-                if not response.text:
-                    await message.reply_text("Invalid input.")
+                pwd_msg = await client.listen(chat_id=user_id, user_id=user_id, timeout=300)
+
+                if not pwd_msg.text:
+                    await client.send_message(user_id, "Invalid input. Please send text.", parse_mode="markdown")
                     continue
-                if response.text.lower() == "exit":
+
+                password = pwd_msg.text.strip()
+                if password.lower() == "exit":
                     await temp_app.disconnect()
-                    return await message.reply_text("Session generation cancelled.")
+                    return await client.send_message(user_id, "Session generation cancelled.", parse_mode="markdown")
+
                 try:
-                    await temp_app.check_password(response.text.strip())
+                    await temp_app.check_password(password)
                     break
                 except Exception as e:
-                    await message.reply_text(f"Incorrect password: `{e}`")
+                    await client.send_message(user_id, f"Incorrect password: `{e}`", parse_mode="markdown")
             else:
                 await temp_app.disconnect()
-                return await message.reply_text("Too many failed password attempts. Cancelled.")
+                return await client.send_message(user_id, "Too many failed password attempts. Cancelled.", parse_mode="markdown")
         except Exception as e:
             await temp_app.disconnect()
-            return await message.reply_text(f"Login failed:\n`{e}`")
+            return await client.send_message(user_id, f"Login failed:\n`{e}`", parse_mode="markdown")
 
-        # Done
+        # Export string session
         string_session = await temp_app.export_session_string()
-        await temp_app.send_message("me", f"**Your Pyrogram String Session:**\n`{string_session}`")
-        await message.reply_text(f"**Your Pyrogram String Session:**\n`{string_session}`\n\nThis has also been sent to your Saved Messages.")
+        await temp_app.send_message("me", f"**Your Pyrogram String Session:**\n`{string_session}`", parse_mode="markdown")
+        await client.send_message(
+            user_id,
+            f"**Your Pyrogram String Session:**\n`{string_session}`\n\nThis has also been sent to your Saved Messages.",
+            parse_mode="markdown"
+        )
         await temp_app.disconnect()
 
+    except ListenerTimeout:
+        await client.send_message(user_id, "Received no response. Exiting...", parse_mode="markdown")
     except Exception as e:
-        await message.reply_text(f"An unexpected error occurred:\n`{e}`")
+        await client.send_message(user_id, f"An unexpected error occurred:\n`{e}`", parse_mode="markdown")
