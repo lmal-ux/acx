@@ -7,6 +7,7 @@ from AnonXMusic import app
 # --- In-memory AFK cache ---
 afk_users = {}
 afkdb = mongodb.afk
+
 # --- Helper Functions ---
 def get_afk_user_duration(since):
     delta = datetime.now() - since
@@ -23,7 +24,7 @@ def get_afk_user_duration(since):
     return " ".join(duration)
 
 def format_afk_message(user_first_name, reason, duration):
-    duration_fmt = f"`{duration}`"
+    duration_fmt = f"<code>{duration}</code>"
     if reason:
         return f"{user_first_name} is AFK: {reason} (since {duration_fmt})."
     else:
@@ -74,7 +75,7 @@ async def afk_command(_, message: Message):
     reason = " ".join(message.command[1:]).strip() or None
 
     await set_afk(user, reason)
-    response = f"{user.first_name} is now AFK."
+    response = f"{user.mention} is now AFK."
     if reason:
         response += f"\nReason: {reason}"
     await message.reply(response)
@@ -90,9 +91,9 @@ async def afk_user_handler(_, message: Message):
         if afk_data:
             await remove_afk(user.id)
             duration = get_afk_user_duration(afk_data["since"])
-            duration_fmt = f"`{duration}`"
+            duration_fmt = f"<code>{duration}</code>"
             await message.reply(
-                f"Welcome back, {user.first_name}! You were AFK for {duration_fmt}."
+                f"Welcome back, {user.mention}! You were AFK for {duration_fmt}."
             )
             return
 
@@ -104,7 +105,7 @@ async def afk_user_handler(_, message: Message):
             if afk_data:
                 duration = get_afk_user_duration(afk_data["since"])
                 text = format_afk_message(
-                    replied_user.first_name, afk_data["reason"], duration
+                    replied_user.mention, afk_data["reason"], duration
                 )
                 await message.reply(text)
                 return
@@ -129,7 +130,7 @@ async def afk_user_handler(_, message: Message):
         if afk_data:
             duration = get_afk_user_duration(afk_data["since"])
             text = format_afk_message(
-                u.first_name, afk_data["reason"], duration
+                u.mention, afk_data["reason"], duration
             )
             await message.reply(text)
             break  # stop after first AFK mention
