@@ -85,10 +85,11 @@ async def afk_command(_, message: Message):
 async def afk_user_handler(_, message: Message):
     
     user = getattr(message, "from_user", None)
-    
+    afk_check_done_users = []
     # Check if sender was AFK
     if user:
         afk_data = await get_afk(user.id)
+        afk_check_done_users.append(user.id)
         if afk_data:
             await remove_afk(user.id)
             duration = get_afk_user_duration(afk_data["since"])
@@ -96,13 +97,17 @@ async def afk_user_handler(_, message: Message):
             await message.reply(
                 f"Welcome back, {user.mention}! You were AFK for {duration_fmt}."
             )
+    
             # return
 
     # Check if replied user is AFK
     if message.reply_to_message:
         replied_user = message.reply_to_message.from_user
+        if replied_user.id in afk_check_done_users:
+            replied_user = None
         if replied_user:
             afk_data = await get_afk(replied_user.id)
+            afk_check_done_users.append(replied_user.id)
             if afk_data:
                 duration = get_afk_user_duration(afk_data["since"])
                 text = format_afk_message(
@@ -127,7 +132,10 @@ async def afk_user_handler(_, message: Message):
                     pass
 
     for u in mentioned_users:
+        if u.id in afk_check_done_users:
+            continue 
         afk_data = await get_afk(u.id)
+        afk_check_done_users.append(u.id)
         if afk_data:
             duration = get_afk_user_duration(afk_data["since"])
             text = format_afk_message(
