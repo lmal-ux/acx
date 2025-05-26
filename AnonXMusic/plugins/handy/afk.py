@@ -83,8 +83,9 @@ async def afk_command(_, message: Message):
 # --- Main AFK Checker ---
 @app.on_message(filters.all & ~filters.service & filters.group,2)
 async def afk_user_handler(_, message: Message):
-    user = message.from_user
-
+    
+    user = getattr(message, "from_user", None)
+    
     # Check if sender was AFK
     if user:
         afk_data = await get_afk(user.id)
@@ -95,7 +96,7 @@ async def afk_user_handler(_, message: Message):
             await message.reply(
                 f"Welcome back, {user.mention}! You were AFK for {duration_fmt}."
             )
-            return
+            # return
 
     # Check if replied user is AFK
     if message.reply_to_message:
@@ -108,7 +109,7 @@ async def afk_user_handler(_, message: Message):
                     replied_user.mention, afk_data["reason"], duration
                 )
                 await message.reply(text)
-                return
+                # return
 
     # Check mentioned users
     mentioned_users = []
@@ -133,4 +134,4 @@ async def afk_user_handler(_, message: Message):
                 u.mention, afk_data["reason"], duration
             )
             await message.reply(text)
-            break  # stop after first AFK mention
+            # break  # stop after first AFK mention
