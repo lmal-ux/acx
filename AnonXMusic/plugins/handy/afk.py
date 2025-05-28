@@ -103,7 +103,7 @@ async def afk_user_handler(_, message: Message):
     # Check if replied user is AFK
     if message.reply_to_message:
         replied_user = message.reply_to_message.from_user
-        if replied_user.id in afk_check_done_users:
+        if replied_user and replied_user.id in afk_check_done_users:
             replied_user = None
         if replied_user:
             afk_data = await get_afk(replied_user.id)
