@@ -5,7 +5,7 @@ import psutil
 from pyrogram import __version__ as pyrover
 from pyrogram import filters
 from pyrogram.errors import MessageIdInvalid
-from pyrogram.types import InputMediaPhoto, Message
+from pyrogram.types import InputMediaPhoto, InputMediaVideo, Message
 from pytgcalls.__version__ import __version__ as pytgver
 
 import config
@@ -23,11 +23,19 @@ from config import BANNED_USERS
 @language
 async def stats_global(client, message: Message, _):
     upl = stats_buttons(_, True if message.from_user.id in SUDOERS else False)
-    await message.reply_photo(
-        photo=config.STATS_IMG_URL,
-        caption=_["gstats_2"].format(app.mention),
-        reply_markup=upl,
-    )
+    media_url = config.STATS_VID_URL if config.STATS_VID_URL else config.STATS_IMG_URL
+    if config.STATS_VID_URL:
+        await message.reply_video(
+            video=media_url,
+            caption=_["gstats_2"].format(app.mention),
+            reply_markup=upl,
+        )
+    else:
+        await message.reply_photo(
+            photo=media_url,
+            caption=_["gstats_2"].format(app.mention),
+            reply_markup=upl,
+        )
 
 
 @app.on_callback_query(filters.regex("stats_back") & ~BANNED_USERS)
@@ -45,10 +53,6 @@ async def home_stats(client, CallbackQuery, _):
 async def overall_stats(client, CallbackQuery, _):
     await CallbackQuery.answer()
     upl = back_stats_buttons(_)
-    try:
-        await CallbackQuery.answer()
-    except:
-        pass
     await CallbackQuery.edit_message_text(_["gstats_1"].format(app.mention))
     served_chats = len(await get_served_chats())
     served_users = len(await get_served_users())
@@ -63,13 +67,26 @@ async def overall_stats(client, CallbackQuery, _):
         config.AUTO_LEAVING_ASSISTANT,
         config.DURATION_LIMIT_MIN,
     )
-    med = InputMediaPhoto(media=config.STATS_IMG_URL, caption=text)
+    media_url = config.STATS_VID_URL if config.STATS_VID_URL else config.STATS_IMG_URL
+    if config.STATS_VID_URL:
+        med = InputMediaVideo(media=media_url, caption=text)
+    else:
+        med = InputMediaPhoto(media=media_url, caption=text)
     try:
         await CallbackQuery.edit_message_media(media=med, reply_markup=upl)
     except MessageIdInvalid:
-        await CallbackQuery.message.reply_photo(
-            photo=config.STATS_IMG_URL, caption=text, reply_markup=upl
-        )
+        if config.STATS_VID_URL:
+            await CallbackQuery.message.reply_video(
+                video=media_url,
+                caption=text,
+                reply_markup=upl,
+            )
+        else:
+            await CallbackQuery.message.reply_photo(
+                photo=media_url,
+                caption=text,
+                reply_markup=upl,
+            )
 
 
 @app.on_callback_query(filters.regex("bot_stats_sudo"))
@@ -78,10 +95,6 @@ async def bot_stats(client, CallbackQuery, _):
     if CallbackQuery.from_user.id not in SUDOERS:
         return await CallbackQuery.answer(_["gstats_4"], show_alert=True)
     upl = back_stats_buttons(_)
-    try:
-        await CallbackQuery.answer()
-    except:
-        pass
     await CallbackQuery.edit_message_text(_["gstats_1"].format(app.mention))
     p_core = psutil.cpu_count(logical=False)
     t_core = psutil.cpu_count(logical=True)
@@ -126,10 +139,23 @@ async def bot_stats(client, CallbackQuery, _):
         call["collections"],
         call["objects"],
     )
-    med = InputMediaPhoto(media=config.STATS_IMG_URL, caption=text)
+    media_url = config.STATS_VID_URL if config.STATS_VID_URL else config.STATS_IMG_URL
+    if config.STATS_VID_URL:
+        med = InputMediaVideo(media=media_url, caption=text)
+    else:
+        med = InputMediaPhoto(media=media_url, caption=text)
     try:
         await CallbackQuery.edit_message_media(media=med, reply_markup=upl)
     except MessageIdInvalid:
-        await CallbackQuery.message.reply_photo(
-            photo=config.STATS_IMG_URL, caption=text, reply_markup=upl
-        )
+        if config.STATS_VID_URL:
+            await CallbackQuery.message.reply_video(
+                video=media_url,
+                caption=text,
+                reply_markup=upl,
+            )
+        else:
+            await CallbackQuery.message.reply_photo(
+                photo=media_url,
+                caption=text,
+                reply_markup=upl,
+            )
